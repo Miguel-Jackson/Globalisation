@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randomized Quiz with Feedback and Explanations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .question-container {
+            margin: 20px 0;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .score {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #f9f9f9;
+            padding: 10px 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.5em;
+        }
+        button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        button.correct {
+            background-color: lightgreen;
+        }
+        button.wrong {
+            background-color: lightcoral;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Globalization Multiple Choice Quiz</h1>
+    <h2>Score: <span id="score">0</span></h2>
+
+    <div id="quiz" class="question-container"></div>
+
+    <script>
+        let score = 0;
+        let usedQuestions = [];
+
+        const questions = [
+            {
+                question: "Which of the following factors contributed to the rapid population growth in 19th-century Europe?",
+                answers: ["Introduction of the potato as a staple food", "Falling death rates due to improved hygiene", "Development of the industrial workforce", "Decrease in urbanization"],
+                correctAnswer: 0,
+                explanation: "The introduction of the potato increased food production, helping to sustain a larger population."
+            },
+            {
+                question: "In what way did the 1870s depression impact global economic policies?",
+                answers: ["Triggered a rise in free trade agreements", "Increased competition in agricultural exports", "Led to a widespread turn towards protectionism", "Forced mass migration away from Europe"],
+                correctAnswer: 2,
+                explanation: "The depression caused many nations to turn to protectionist policies to safeguard their domestic economies."
+            },
+            {
+                question: "Which of the following best explains the significance of the 1873 depression?",
+                answers: ["It marked the beginning of industrial capitalism", "It led to a significant rise in farm subsidies", "It led to protectionist policies as farms were hit hard", "It forced more countries to engage in free trade"],
+                correctAnswer: 2,
+                explanation: "The 1873 depression led to protectionism because farms were hit hard, creating economic inequality."
+            },
+            {
+                question: "Which of the following accurately describes the global impact of the Treaty of Versailles?",
+                answers: ["It boosted global trade by removing tariffs", "It imposed reparations that led to financial strain on Germany", "It accelerated Germany’s industrialization", "It forced France and the UK to adopt protectionism"],
+                correctAnswer: 1,
+                explanation: "The Treaty of Versailles placed heavy reparations on Germany, causing financial strain and instability."
+            },
+            {
+                question: "What role did Confucianism play in stabilizing the Han Dynasty in China?",
+                answers: ["It led to the establishment of a centralized monetary system", "It promoted loyalty and strengthened the bureaucratic system", "It caused civil unrest through rigid class structures", "It reduced the power of elite families"],
+                correctAnswer: 1,
+                explanation: "Confucianism promoted loyalty and respect for authority, which helped stabilize the bureaucracy and the state."
+            },
+            {
+                question: "Which of the following economic concepts is linked to the Neo-liberal policies after 1973?",
+                answers: ["Strengthening the welfare state", "Keynesian demand management", "Deregulation of industries", "Large government intervention in markets"],
+                correctAnswer: 2,
+                explanation: "Neo-liberal policies emphasized deregulation and smaller government to allow market forces to operate freely."
+            },
+            {
+                question: "What was the primary consequence of the Kyoto Protocol in global environmental cooperation?",
+                answers: ["It immediately reduced greenhouse gas emissions", "It introduced the concept of trading emission rights", "It imposed trade sanctions on high-emission countries", "It was ratified by all the major industrial countries"],
+                correctAnswer: 1,
+                explanation: "The Kyoto Protocol introduced the idea of trading emission rights, creating a market-based mechanism to control emissions."
+            },
+            {
+                question: "Which of the following best explains why the Asian Tigers experienced rapid growth in the 1960s?",
+                answers: ["Their focus on agricultural output", "Investments in technology and electronics for export", "Heavy reliance on raw material exports", "Minimal government intervention"],
+                correctAnswer: 1,
+                explanation: "The Asian Tigers invested in high-tech industries like electronics, which helped them grow rapidly by exporting these products."
+            },
+            {
+                question: "Which event in 1973 significantly impacted global economic policies?",
+                answers: ["The formation of the European Union", "The OPEC oil embargo", "The creation of NAFTA", "The establishment of the World Trade Organization"],
+                correctAnswer: 1,
+                explanation: "The 1973 OPEC oil embargo caused oil prices to skyrocket, triggering economic shifts and inflation worldwide."
+            },
+            {
+                question: "Which concept is used to measure the environmental impact of a population?",
+                answers: ["Purchasing Power Parity", "Race to the Bottom", "Ecological Footprint", "Bretton Woods System"],
+                correctAnswer: 2,
+                explanation: "Ecological Footprint measures the environmental impact of a population based on resource consumption and waste production."
+            },
+            {
+                question: "Which of the following countries is NOT one of the original Asian Tigers?",
+                answers: ["Taiwan", "Japan", "South Korea", "Hong Kong"],
+                correctAnswer: 1,
+                explanation: "Japan is not considered one of the original Asian Tigers; the term typically refers to Taiwan, South Korea, Hong Kong, and Singapore."
+            },
+            {
+                question: "What role did the introduction of fossil fuels play in the global economy in the 18th century?",
+                answers: ["It slowed down industrialization due to pollution concerns", "It accelerated industrial production and global trade", "It caused an immediate decline in agricultural production", "It was mainly used for transportation by sea"],
+                correctAnswer: 1,
+                explanation: "Fossil fuels accelerated industrial production by providing a cheap, efficient energy source, which boosted global trade."
+            },
+            {
+                question: "Which agreement aimed to reduce trade barriers between the U.S., Canada, and Mexico?",
+                answers: ["TTIP", "USMCA", "NAFTA", "OPEC"],
+                correctAnswer: 2,
+                explanation: "NAFTA was the agreement that reduced trade barriers and created a large free trade zone between the U.S., Canada, and Mexico."
+            },
+            {
+                question: "Which of the following best explains the concept of 'race to the bottom' in globalization?",
+                answers: ["Countries compete to lower wages and weaken regulations to attract investment", "Countries race to industrialize as quickly as possible", "Countries focus on raising wages to outcompete others in global trade", "Countries compete to increase environmental standards"],
+                correctAnswer: 0,
+                explanation: "'Race to the bottom' refers to countries lowering wages and environmental standards to attract foreign investment."
+            },
+            {
+                question: "Which major event marked the 'Golden Years of Managed Capitalism' between 1945 and 1973?",
+                answers: ["The establishment of the European Union", "The rise of Keynesian economics with strong government intervention", "The global shift toward Neo-liberal policies", "The rapid adoption of supply-side economics"],
+                correctAnswer: 1,
+                explanation: "Keynesian economics dominated during the post-war years, with strong government intervention to manage demand and ensure full employment."
+            },
+            {
+                question: "Which of the following best describes the goals of the European Union’s Common Market?",
+                answers: ["To create a European military alliance", "To establish a single European currency", "To ensure freedom of movement for goods, services, capital, and labor", "To limit the movement of workers within the EU"],
+                correctAnswer: 2,
+                explanation: "The European Union's Common Market aimed to ensure free movement of goods, services, capital, and labor across member states."
+            },
+            {
+                question: "Which global event in 1929 led to the creation of trade barriers as countries tried to protect their economies?",
+                answers: ["The Great Depression", "The Treaty of Versailles", "The formation of the European Union", "The Marshall Plan"],
+                correctAnswer: 0,
+                explanation: "The Great Depression led to a rise in protectionism as countries erected trade barriers to safeguard their economies."
+            },
+            {
+                question: "Which major international agreement was signed in 1997 to address global emissions?",
+                answers: ["Copenhagen Agreement", "Paris Agreement", "Kyoto Protocol", "Bretton Woods Agreement"],
+                correctAnswer: 2,
+                explanation: "The Kyoto Protocol was signed in 1997 as the first major international agreement to address global greenhouse gas emissions."
+            },
+            {
+                question: "Which of the following is the main goal of the Paris Agreement (2015)?",
+                answers: ["To create a global emissions trading scheme", "To restrict global warming to 1.5-2°C", "To regulate deforestation in developing nations", "To create a carbon tax system for industrialized nations"],
+                correctAnswer: 1,
+                explanation: "The Paris Agreement aims to keep global warming below 2°C by reducing greenhouse gas emissions globally."
+            },
+            {
+                question: "Which global organization was established in 1960 to control oil production and prices?",
+                answers: ["BRICS", "WTO", "OPEC", "NAFTA"],
+                correctAnswer: 2,
+                explanation: "OPEC was formed to regulate oil production and stabilize oil prices among member nations."
+            },
+            {
+                question: "Which of the following describes the significance of the One Belt, One Road initiative?",
+                answers: ["It was the first climate agreement involving developing nations", "It aimed to reduce carbon emissions globally", "It built infrastructure connecting China to Europe, Asia, and Africa", "It created a new digital currency for trade"],
+                correctAnswer: 2,
+                explanation: "The One Belt, One Road initiative is China's ambitious infrastructure project to connect trade routes across Asia, Europe, and Africa."
+            },
+            // Continuation of the original 63 questions
+            {
+                question: "Which of the following was a direct consequence of the Copenhagen Summit of 2009 on climate change?",
+                answers: ["A successful global agreement to limit deforestation and greenhouse gas emissions", "A major failure due to disagreements between developed and emerging economies", "The ratification of the Kyoto Protocol by the United States", "The establishment of the world’s first international carbon tax"],
+                correctAnswer: 1,
+                explanation: "The Copenhagen Summit largely failed due to disagreements between developed and developing nations on emission responsibilities."
+            },
+            {
+                question: "Which of the following best describes the economic growth models of the Capitalist West and Communist East during the Cold War?",
+                answers: ["The West focused on extensive growth, while the East focused on intensive growth", "The East had a planned economy with state control, while the West relied on market economies", "The West relied on heavy agriculture, while the East focused on service industries", "Both sides prioritized agricultural development over industrialization"],
+                correctAnswer: 1,
+                explanation: "The Capitalist West relied on market economies, while the Communist East used planned economies with heavy state intervention."
+            },
+            {
+                question: "Which of the following agreements marked the first significant attempt to create a free trade area in North America?",
+                answers: ["The NAFTA agreement of 1994", "The USMCA agreement of 2020", "The U.S.-Canada Free Trade Agreement of 1989", "The Trans-Pacific Partnership (TPP)"],
+                correctAnswer: 2,
+                explanation: "The U.S.-Canada Free Trade Agreement of 1989 was the first major step toward creating a North American free trade zone."
+            },
+            {
+                question: "What was the primary purpose of the Cobden-Chevalier Treaty in 1860?",
+                answers: ["To limit British trade with India", "To introduce tariffs on agricultural products", "To create a trade agreement between Britain and France that promoted free trade", "To establish a permanent military alliance between Britain and France"],
+                correctAnswer: 2,
+                explanation: "The Cobden-Chevalier Treaty of 1860 established one of the earliest free trade agreements between Britain and France."
+            },
+            {
+                question: "What was the significance of the Treaty of Versailles for Germany’s economy post-WWI?",
+                answers: ["It forced Germany to abandon its colonial territories", "It imposed heavy reparations, leading to a cycle of debt", "It triggered the rise of Keynesian economics in Germany", "It resulted in Germany’s removal from the League of Nations"],
+                correctAnswer: 1,
+                explanation: "The Treaty of Versailles imposed heavy reparations on Germany, creating economic difficulties and leading to hyperinflation."
+            },
+            {
+                question: "How did the Asian Tigers capitalize on the economic boom of the 1960s?",
+                answers: ["By exporting raw materials to the Global North", "By investing heavily in industrial production for the Global North, including electronics and textiles", "By focusing on agricultural production to supply the Middle East", "By forming a trade bloc to rival the European Union"],
+                correctAnswer: 1,
+                explanation: "The Asian Tigers invested in manufacturing and exporting goods like electronics and textiles, fueling rapid economic growth."
+            },
+            {
+                question: "Which of the following best describes the primary objective of the European Union's common market?",
+                answers: ["To establish a single European military force", "To ensure freedom of movement for goods, services, capital, and labor across member states", "To set tariffs on goods imported from the U.S.", "To promote agricultural specialization across Eastern Europe"],
+                correctAnswer: 1,
+                explanation: "The common market of the EU allows for the free movement of goods, services, capital, and labor across member states."
+            },
+            {
+                question: "Which of the following agreements between the U.S. and Mexico was replaced by the USMCA in 2020?",
+                answers: ["NAFTA", "TTIP", "The Marshall Plan", "Bretton Woods Agreement"],
+                correctAnswer: 0,
+                explanation: "NAFTA was replaced by the USMCA in 2020 to address concerns over labor, environmental regulations, and intellectual property."
+            },
+            {
+                question: "What is the main idea behind the 'race to the bottom' in global economic systems?",
+                answers: ["Countries compete to lower wages and regulations to attract investment", "Countries compete to raise labor standards to attract skilled workers", "Countries attempt to eliminate poverty through social safety nets", "Nations compete to establish high environmental standards to attract green industries"],
+                correctAnswer: 0,
+                explanation: "'Race to the bottom' refers to countries reducing labor standards, environmental regulations, and wages to attract foreign investments."
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreDisplay = document.getElementById('score');
+
+        function loadQuestion() {
+            // Check if all questions have been used, if so, reset the array
+            if (usedQuestions.length === questions.length) {
+                usedQuestions = [];
+            }
+
+            // Randomly select an unused question
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (usedQuestions.includes(randomIndex));
+
+            usedQuestions.push(randomIndex);
+            const currentQuestion = questions[randomIndex];
+
+            // Clear previous content
+            quizContainer.innerHTML = '';
+
+            const questionTitle = document.createElement('h3');
+            questionTitle.textContent = currentQuestion.question;
+            quizContainer.appendChild(questionTitle);
+
+            currentQuestion.answers.forEach((answer, i) => {
+                const answerButton = document.createElement('button');
+                answerButton.textContent = answer;
+                answerButton.addEventListener('click', () => checkAnswer(i, currentQuestion.correctAnswer, answerButton, currentQuestion));
+                quizContainer.appendChild(answerButton);
+            });
+        }
+
+        function checkAnswer(selected, correct, button, question) {
+            const feedback = document.createElement('div');
+            feedback.classList.add('feedback');
+
+            if (selected === correct) {
+                button.classList.add('correct');
+                updateScore(1);
+                feedback.textContent = `Correct! ${question.explanation}`;
+                quizContainer.appendChild(feedback);
+                setTimeout(loadQuestion, 4000); // Move to the next question after 4 seconds
+            } else {
+                button.classList.add('wrong');
+                updateScore(-1);
+                feedback.textContent = `Wrong! The correct answer is: ${question.answers[correct]}. ${question.explanation}`;
+                quizContainer.appendChild(feedback);
+                setTimeout(loadQuestion, 6000); // Show the correct answer for 6 seconds, then move to the next question
+            }
+        }
+
+        function updateScore(change) {
+            score += change;
+            scoreDisplay.textContent = score;
+        }
+
+        // Load the first random question when the page loads
+        loadQuestion();
+
+    </script>
+
+</body>
+</html>
